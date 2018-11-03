@@ -19,14 +19,9 @@ class UserController extends Controller
      **/
     public function index(Request $request)
     {
-        // Get All Files from "user" Folder from Storage Public
-        $files = Storage::files('user');
+        // Get Data
+        $files = $this->get_files();
 
-        // Sort By Date DESC
-        $files = array_reverse(array_sort($files, function($value){
-            return Storage::lastModified($value);
-        }));
-        
         // Initial Value
         $users = [];
         
@@ -70,6 +65,30 @@ class UserController extends Controller
 
 
         return view('user.index', compact('users'));
+    }
+
+    /**
+     * Get All Files from "user" folder from "Storage Public"
+     *
+     * @return Array
+     * @author Sam Muza
+     **/
+    public function get_files()
+    {
+        // Get All Files from "user" Folder from Storage Public
+        $files = Storage::files('user');
+
+        // Sort By Date DESC
+        $files = array_reverse(array_sort($files, function($value){
+            return Storage::lastModified($value);
+        }));
+
+        // filter extension [.txt]
+        $files = array_filter($files, function($value) {
+            return File::extension($value) == 'txt';
+        });
+
+        return $files;
     }
 
     /**
@@ -314,7 +333,7 @@ class UserController extends Controller
         try {
             
             // Get All Data
-            $files = Storage::files('user');
+            $files = $this->get_files();
 
             // IF File Exists Run Delete
             if (count($files) > 0) {
@@ -402,7 +421,7 @@ class UserController extends Controller
         $phone_list = [];
 
         // Get All Txt Files
-        $files = Storage::files('user');
+        $files = $this->get_files();
         
         foreach ($files as $file) {
             
