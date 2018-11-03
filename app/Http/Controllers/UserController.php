@@ -13,8 +13,8 @@ class UserController extends Controller
     /**
      * Show User's List
      *
-     * @param  Request (Optional)
-     * @return view
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      * @author Sam Muza
      **/
     public function index(Request $request)
@@ -31,8 +31,11 @@ class UserController extends Controller
             // Key => "Musa-20181201093015" (for edit / delete)
             $key  = str_replace(['user/', '.txt'], '', $file); 
 
+            // Musa,musa@gmail.com,1990-09-24,...
+            $dataText = Storage::get($file);
+
             // Get User data From [file.txt]
-            $txt = explode(",", Storage::get($file));
+            $txt = explode(",", $dataText);
 
             // data each user
             $user = [
@@ -94,7 +97,7 @@ class UserController extends Controller
     /**
      * Create new User / Show Form Add User
      *
-     * @return view
+     * @return \Illuminate\Http\Response
      * @author Sam Muza
      */
     public function create()
@@ -106,8 +109,8 @@ class UserController extends Controller
     /**
      * Store to txt File
      *
-     * @param  Request 
-     * @return Redirect => user.index
+     * @param  \Illuminate\Http\Request  $request 
+     * @return \Illuminate\Http\RedirectResponse
      * @author Sam Muza
      **/
     public function store(Request $request)
@@ -157,7 +160,7 @@ class UserController extends Controller
      * Edit User Detail's
      *
      * @param  user file (filename.txt)
-     * @return view
+     * @return \Illuminate\Http\Response
      * @author Sam Muza
      **/
     public function edit($filename)
@@ -166,8 +169,10 @@ class UserController extends Controller
 
         if (Storage::exists($file)) {
 
+            $dataText = Storage::get($file);
+
             // Get data from file.txt
-            $txt = explode(",", Storage::get($file));
+            $txt = explode(",", $dataText);
 
             // assign to $user array
             $user = [
@@ -197,7 +202,7 @@ class UserController extends Controller
      * Delete User
      *
      * @param  user file (filename.txt)
-     * @return Redirect user.index
+     * @return \Illuminate\Http\RedirectResponse
      * @author Sam Muza
      **/
     public function delete($filename)
@@ -230,7 +235,7 @@ class UserController extends Controller
     /**
      * Download All txt Files from "storage/public/user" to Zip
      *
-     * @return Response download
+     * @return \Illuminate\Http\Response
      * @author Sam Muza
      **/
     public function backup()
@@ -266,8 +271,8 @@ class UserController extends Controller
     /**
      * Restore Data (Extract Zip) to "storage/public/user"
      *
-     * @param  Request
-     * @return Redirect
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      * @author Sam Muza
      **/
     public function restore(Request $request)
@@ -308,7 +313,7 @@ class UserController extends Controller
     /**
      * Reset Data (Delete All File)
      *
-     * @return Redirect
+     * @return \Illuminate\Http\RedirectResponse
      * @author Sam Muza
      **/
     public function reset()
@@ -353,8 +358,8 @@ class UserController extends Controller
     /**
      * Check Input is Valid
      *
-     * @param  Request
-     * @return Validator
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Contracts\Validation\Validator
      * @author Sam Muza
      **/
     public function checkInputIsValid(Request $request)
@@ -428,8 +433,9 @@ class UserController extends Controller
             // If "old_txt" exists (it's mean Update) => Exclude "Current file"
             if ($file != session('old_txt')) {
 
-                $txt  = Storage::get($file);
-                $user = explode(',', $txt);
+                $dataText  = Storage::get($file);
+                
+                $user      = explode(',', $dataText);
 
                 $email_list[] = $user[1];
                 $phone_list[] = $user[3];
@@ -442,8 +448,8 @@ class UserController extends Controller
     /**
      * Check Uploaded File (Restore) Valid
      *
-     * @param  Request
-     * @return Validator
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Contracts\Validation\Validator
      * @author Sam Muza
      **/
     public function checkFileIsValid(Request $request)
