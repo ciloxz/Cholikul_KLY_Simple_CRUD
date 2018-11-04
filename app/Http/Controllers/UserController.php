@@ -329,7 +329,7 @@ class UserController extends Controller
     /**
      * Remove Data (Delete All File) from "storage/public/user"
      *
-     * @return bool
+     * @return bool|\Illuminate\Http\RedirectResponse
      * @author Sam Muza
      **/
     public function removeAllUser()
