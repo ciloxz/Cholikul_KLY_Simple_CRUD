@@ -3,8 +3,8 @@
 ## Installation
 
 1. Clone / Download Repository
-2. Extract Files to Folder (Your New Folder Project)
-3. Open Terminal / Command Prompt (on current folder Project)
+2. Extract Files to Folder (Your New Project Folder)
+3. Open Terminal / Command Prompt (On Current Project Folder)
 4. Run Command Below 
 ```
 	$ composer install
