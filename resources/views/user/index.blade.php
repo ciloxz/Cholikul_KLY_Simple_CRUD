@@ -55,7 +55,7 @@
 					<form action="{{ route('user.index') }}" id="form-search">
 						<input type="text" value="{{ request('search') }}" name="search" placeholder="Type Keyword and Hit Enter to Search ..." 
 						class="form-control" id="search">
-						<a href="{{ route('user.index') }}" class="btn" id="btn-clear-filter">Reset</a>
+						<a href="{{ route('user.index') }}" class="btn" id="btn-clear-filter">Reset Search</a>
 					</form>
 
 					{{-- User List --}}
