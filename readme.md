@@ -7,6 +7,9 @@
 3. Open Terminal / Command Prompt (on current folder Project)
 4. Run Command Below 
 ```
+	$ composer install
+```
+```
 	$ php artisan key:generate
 ```
 ```
