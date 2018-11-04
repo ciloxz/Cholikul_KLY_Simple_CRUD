@@ -14,7 +14,7 @@ class UserController extends Controller
      * Show User's List
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      * @author Sam Muza
      **/
     public function index(Request $request)
@@ -32,7 +32,7 @@ class UserController extends Controller
             $key  = str_replace(['user/', '.txt'], '', $file); 
 
             // Musa,musa@gmail.com,1990-09-24,...
-            $dataText = Storage::get($file);
+            $dataText = (String) Storage::get($file);
 
             // Get User data From [file.txt]
             $txt = explode(",", $dataText);
@@ -97,7 +97,7 @@ class UserController extends Controller
     /**
      * Create new User / Show Form Add User
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      * @author Sam Muza
      */
     public function create()
@@ -128,13 +128,16 @@ class UserController extends Controller
             // Format FileName (Remove Space & Char [,])
             $fileName = $this->remove_space_comma($request->name)  . '-' . date('dmYHis') . '.txt';
 
+            // Init Value
+            $user = [];
+            
             // remove space & char [,] from Request 
             foreach ($request->except('_token') as $value) {
                 $user[] =  $this->remove_space_comma($value);
             }
 
             // Save Data (Write File)
-            if (Storage::put('user/' . $fileName, implode($user, ","))) {
+            if (Storage::put('user/' . $fileName, implode(",", $user))) {
                 
                 $info = 'User Successfully Added';
 
@@ -160,7 +163,7 @@ class UserController extends Controller
      * Edit User Detail's
      *
      * @param  user file (filename.txt)
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View
      * @author Sam Muza
      **/
     public function edit($filename)
@@ -169,7 +172,7 @@ class UserController extends Controller
 
         if (Storage::exists($file)) {
 
-            $dataText = Storage::get($file);
+            $dataText = (String) Storage::get($file);
 
             // Get data from file.txt
             $txt = explode(",", $dataText);
@@ -184,12 +187,8 @@ class UserController extends Controller
                 'address' => $txt[5]
             ];
             
-            // set operation as "update" & remember "old_txt"
-            session([
-                'update'   => true, 
-                // 'old_data' => array('fileTxt' => $file, 'email' => $txt[1], 'phone' => $txt[3]), 
-                'old_txt' => $file, 
-            ]);
+            // set operation as "update" & remember "old_txt.file"
+            session(['update' => true, 'old_txt' => $file]);
 
             return view('user.edit', compact('user'));
 
@@ -235,7 +234,7 @@ class UserController extends Controller
     /**
      * Download All txt Files from "storage/public/user" to Zip
      *
-     * @return \Illuminate\Http\Response
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
      * @author Sam Muza
      **/
     public function backup()
@@ -330,7 +329,7 @@ class UserController extends Controller
     /**
      * Remove Data (Delete All File) from "storage/public/user"
      *
-     * @return Boolean
+     * @return bool
      * @author Sam Muza
      **/
     public function removeAllUser()
@@ -392,9 +391,6 @@ class UserController extends Controller
         // Custom validator to Check Unique Email & Phone 
         $validator->after(function($validator) use($request) {
             
-            // Detect Error
-            $isError = false;
-
             // Get Existing Email and Phone
             $data = $this->get_existing_email_phone();
 
@@ -417,7 +413,7 @@ class UserController extends Controller
     /**
      * Get Email & Phone Already Exists
      *
-     * @return Array
+     * @return array
      * @author Sam Muza
      **/
     public function get_existing_email_phone()
@@ -433,7 +429,7 @@ class UserController extends Controller
             // If "old_txt" exists (it's mean Update) => Exclude "Current file"
             if ($file != session('old_txt')) {
 
-                $dataText  = Storage::get($file);
+                $dataText  = (String) Storage::get($file);
                 
                 $user      = explode(',', $dataText);
 
@@ -480,7 +476,7 @@ class UserController extends Controller
             if (count($files) > 0) {
 
                 // detect Error
-                $isError = false;
+                $error = null;
 
                 // Check each of files
                 foreach ($files as $file) {
@@ -490,20 +486,18 @@ class UserController extends Controller
 
                     // File is Valid if Contain User Data (6 Fields)
                     if (count(explode(",", $txt)) != 6) {
-                        $isError = true;
-                        $info = 'File is Invalid, Try Again !';
+                        $error = 'File is Invalid, Try Again !';
                         break;
                     }
                 }
 
             }else{
-                $isError = true;
-                $info = 'File is Empty (No User Data Found)';
+                $error = 'File is Empty (No User Data Found)';
             }
 
-            // Add error if $isError == true
-            if ($isError) {
-                $validator->errors()->add('upload', $info);
+            // Add error if $error Not Null
+            if ($error) {
+                $validator->errors()->add('upload', $error);
             }
 
             // Delete All files on "storage/app/public/temp"
@@ -530,8 +524,8 @@ class UserController extends Controller
     /**
      * Remove Left, Right Space & char [,]
      *
-     * @param  String
-     * @return String
+     * @param  string
+     * @return string
      * @author Sam Muza
      **/
     public function remove_space_comma($string)
